@@ -3,7 +3,8 @@
 
 int main(int argc, char *argv[]) {
 	std::cout << "Hello from Simple Engine Editor" << std::endl;
-	SimpleEngine::sayHello();
+	int res  = SimpleEngine::checkGLFW();
+	std::cout << "Resutt is: " << res << std::endl;
 
 	std::cin.get();
 	return 0;

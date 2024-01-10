@@ -1,5 +1,5 @@
 #pragma once
 
 namespace SimpleEngine {
-	void sayHello();
+	int checkGLFW();
 }
