@@ -10,9 +10,17 @@ SET(ENGINE_PROJECT_NAME SimpleEngineCore)
 
 project(${ENGINE_PROJECT_NAME} VERSION 1.0.0)
 
+set(ENGINE_PUBLIC_INCLUDES
+	includes/SimpleEngineCore/Application.hpp
+)
+
+set(ENGINE_PRIVATE_SOURCES
+	src/SimpleEngineCore/Application.cpp
+)
+
 add_library(${ENGINE_PROJECT_NAME} STATIC
-	src/SimpleEngineCore/Utils/test.cpp
-	includes/SimpleEngineCore/Utils/test.hpp
+	${ENGINE_PUBLIC_INCLUDES}
+	${ENGINE_PRIVATE_SOURCES}
 )
 
 target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
