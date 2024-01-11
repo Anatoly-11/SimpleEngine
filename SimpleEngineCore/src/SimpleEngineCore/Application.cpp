@@ -1,5 +1,7 @@
 #include "SimpleEngineCore/Application.hpp"
 #include <iostream>
+//#define GLFW_INCLUDE_NONE
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include "SimpleEngineCore/Log.hpp"
 
@@ -29,10 +31,18 @@ namespace SimpleEngine {
 
 		glfwMakeContextCurrent(pWin); // Make the pWin's context current
 
+		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+			LOG_CRITICAL("Failed to initialized GLAD");
+			return -3;
+		}
+
+		glClearColor(1, 0, 0, 0);
+
 		// Loop wile not closed pWin
 		while(!glfwWindowShouldClose(pWin)) {
 			glfwPollEvents();
-			// glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
+
 			on_update();
 
 			glfwSwapBuffers(pWin);
