@@ -13,6 +13,7 @@ project(${ENGINE_PROJECT_NAME} VERSION 1.0.0)
 set(ENGINE_PUBLIC_INCLUDES
 	includes/SimpleEngineCore/Application.hpp
 	includes/SimpleEngineCore/Log.hpp
+	includes/SimpleEngineCore/Event.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
