@@ -3,9 +3,8 @@
 #include <SimpleEngineCore/Application.hpp>
 
 class MyApp : public SimpleEngine::Application {
-
 	virtual void on_update() noexcept override {
-		std::cout << "Upfdate frame: " << frame++ << std::endl;
+		//std::cout << "Upfdate frame: " << frame++ << std::endl;
 	}
 private:
 	int frame = 0;
