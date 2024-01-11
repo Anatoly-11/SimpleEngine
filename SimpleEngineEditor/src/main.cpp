@@ -12,6 +12,6 @@ private:
 
 int main(int argc, char *argv[]) {
 	auto myApp = std::make_unique<MyApp>();
-	int res = myApp->start(640, 480, "My SimpleEngineCore app");
+	int res = myApp->start(640, 480, "My first app");
 	return res;
 }

@@ -15,19 +15,26 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/SimpleEngineCore/Log.hpp
 )
 
+set(ENGINE_PRIVATE_INCLUDES
+	src/SimpleEngineCore/Window.hpp
+)
+
 set(ENGINE_PRIVATE_SOURCES
 	src/SimpleEngineCore/Application.cpp
+	src/SimpleEngineCore/Window.cpp
 )
 
 add_library(${ENGINE_PROJECT_NAME} STATIC
 	${ENGINE_PUBLIC_INCLUDES}
+	${ENGINE_PRIVATE_INCLUDES}
 	${ENGINE_PRIVATE_SOURCES}
 )
 
-target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
-
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_20)
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC c_std_17)
+
+target_include_directories(${ENGINE_PROJECT_NAME} PUBLIC includes)
+target_include_directories(${ENGINE_PROJECT_NAME} PRIVATE src)
 
 add_subdirectory(../external/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glfw)

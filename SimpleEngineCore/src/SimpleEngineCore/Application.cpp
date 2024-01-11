@@ -1,56 +1,31 @@
 #include "SimpleEngineCore/Application.hpp"
+#include "SimpleEngineCore/Window.hpp"
 #include <iostream>
-//#define GLFW_INCLUDE_NONE
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
+
 #include "SimpleEngineCore/Log.hpp"
+
+//#include "glad/glad.h"
+//#include <GLFW/glfw3.h>
 
 namespace SimpleEngine {
 	Application::Application() noexcept {
-		LOG_INFO("Welcome to spdlog!");
-		LOG_ERROR("Some error message with arg {}", 1);
-		LOG_WARN("Easy padding in numbers like {:08d}", 12);
-		LOG_CRITICAL("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
-	};
-	
-	Application::~Application() noexcept {
-
+		LOG_INFO("Starting Application");
 	}
-	
+
+	Application::~Application() noexcept {
+		LOG_INFO("Closing Application");
+	}
+
 	int Application::start(unsigned int window_width, unsigned int window_height, const char *title) noexcept {
-		GLFWwindow *pWin;
-		if(!glfwInit()) {
-			return -1;
-		}
-		//GLFWmonitor *pMon = glfwGetPrimaryMonitor();
-		pWin = glfwCreateWindow(window_width, window_height, title, nullptr, nullptr);
-		if(!pWin) {
-			glfwTerminate();
-			return -2;
-		}
-
-		glfwMakeContextCurrent(pWin); // Make the pWin's context current
-
-		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-			LOG_CRITICAL("Failed to initialized GLAD");
-			return -3;
-		}
-
-		glClearColor(1, 0, 0, 0);
-
-		// Loop wile not closed pWin
-		while(!glfwWindowShouldClose(pWin)) {
-			glfwPollEvents();
-			glClear(GL_COLOR_BUFFER_BIT);
-
+		m_pWindow = std::make_unique<Window>(title, window_width, window_height);
+		if(!m_pWindow) return -1;
+		while(true) {
+			m_pWindow->on_update();
 			on_update();
-
-			glfwSwapBuffers(pWin);
 		}
-		glfwTerminate();
 		return 0;
 	}
-	
+
 	void Application::on_update() noexcept {
 	}
 }
