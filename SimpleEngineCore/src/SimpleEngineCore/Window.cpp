@@ -48,13 +48,26 @@ namespace SimpleEngine {
 				WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
 				data.width = width;
 				data.height = height;
-				Event event;
-				event.width = width;
-				event.height = height;
+				EventWindowResize event(width, height);
 				data.eventCallbackFn(event);
 			}
 		);
 
+		glfwSetCursorPosCallback(m_pWin,
+		[](GLFWwindow *pWin, double x, double y) {
+			WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWin));
+			EventMouseMoved event(x, y);
+			data.eventCallbackFn(event);
+		}
+		);
+
+		glfwSetWindowCloseCallback(m_pWin,
+			[](GLFWwindow *pWin) {
+				WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWin));
+				EventWindowClose event;
+				data.eventCallbackFn(event);
+			}
+		);
 		return 0;
 
 	}

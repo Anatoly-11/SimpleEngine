@@ -1,4 +1,5 @@
 #pragma once
+#include "SimpleEngineCore/Event.hpp"
 #include <memory>
 
 namespace SimpleEngine {
@@ -20,6 +21,9 @@ namespace SimpleEngine {
 		virtual void on_update() noexcept;
 
 	private:
+		EventDispatcher m_event_dispatcher;
+		bool m_bCloseWindow;
+
 		std::unique_ptr<Window> m_pWindow;
 	};
 }
