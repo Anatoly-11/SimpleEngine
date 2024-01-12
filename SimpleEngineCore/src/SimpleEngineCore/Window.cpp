@@ -3,6 +3,8 @@
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 namespace SimpleEngine {
 
@@ -11,6 +13,9 @@ namespace SimpleEngine {
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) noexcept
 		: m_pWin(nullptr), m_data{std::move(title), width, height, nullptr} {
 		int res = init();
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGui_ImplOpenGL3_Init();
 	}
 
 	Window::~Window() noexcept {
@@ -79,8 +84,24 @@ namespace SimpleEngine {
 	void Window::on_update() noexcept {
 		glClearColor(1, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		ImGuiIO &io = ImGui::GetIO();
+		io.DisplaySize.x = static_cast<float>(get_width());
+		io.DisplaySize.y = static_cast<float>(get_height());
+		
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::ShowDemoWindow();
+		
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+
 	  glfwSwapBuffers(m_pWin);
   	glfwPollEvents();
+
 	}
 
 	unsigned int Window::get_width() const noexcept {
