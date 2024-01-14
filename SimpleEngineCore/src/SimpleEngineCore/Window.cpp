@@ -5,17 +5,19 @@
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 namespace SimpleEngine {
 
 	static bool s_GLFW_initialized = false;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) noexcept
-		: m_pWin(nullptr), m_data{std::move(title), width, height, nullptr} {
+		: m_pWindow(nullptr), m_data{std::move(title), width, height, nullptr}, m_background_color{1.f, 0.f, 0.f, 0.f} {
 		int res = init();
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGui_ImplOpenGL3_Init();
+		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 	}
 
 	Window::~Window() noexcept {
@@ -33,22 +35,22 @@ namespace SimpleEngine {
 		}
 
 		//GLFWmonitor *pMon = glfwGetPrimaryMonitor();
-		m_pWin = glfwCreateWindow(m_data.width, m_data.width, m_data.title.c_str(), nullptr, nullptr);
-		if(!m_pWin) {
+		m_pWindow = glfwCreateWindow(m_data.width, m_data.width, m_data.title.c_str(), nullptr, nullptr);
+		if(!m_pWindow) {
 			glfwTerminate();
 			LOG_ERROR("Can't create GLFWwindow window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.width);
 			s_GLFW_initialized = false;
 			return -2;
 		}
 
-		glfwMakeContextCurrent(m_pWin); // Make the pWin's context current
+		glfwMakeContextCurrent(m_pWindow); // Make the pWin's context current
 
 		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			LOG_CRITICAL("Failed to initialized GLAD");
 			return -3;
 		}
-		glfwSetWindowUserPointer(m_pWin, &m_data);
-		glfwSetWindowSizeCallback(m_pWin,
+		glfwSetWindowUserPointer(m_pWindow, &m_data);
+		glfwSetWindowSizeCallback(m_pWindow,
 			[](GLFWwindow *pWindow, int width, int height) {
 				WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
 				data.width = width;
@@ -58,7 +60,7 @@ namespace SimpleEngine {
 			}
 		);
 
-		glfwSetCursorPosCallback(m_pWin,
+		glfwSetCursorPosCallback(m_pWindow,
 		[](GLFWwindow *pWin, double x, double y) {
 			WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWin));
 			EventMouseMoved event(x, y);
@@ -66,7 +68,7 @@ namespace SimpleEngine {
 		}
 		);
 
-		glfwSetWindowCloseCallback(m_pWin,
+		glfwSetWindowCloseCallback(m_pWindow,
 			[](GLFWwindow *pWin) {
 				WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWin));
 				EventWindowClose event;
@@ -82,7 +84,7 @@ namespace SimpleEngine {
 	}
 
 	void Window::on_update() noexcept {
-		glClearColor(1, 0, 0, 0);
+		glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ImGuiIO &io = ImGui::GetIO();
@@ -90,16 +92,22 @@ namespace SimpleEngine {
 		io.DisplaySize.y = static_cast<float>(get_height());
 		
 		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		ImGui::ShowDemoWindow();
+
+		ImGui::Begin("Background color window");
+		ImGui::ColorEdit4("Background Color", m_background_color);
+		ImGui::End();
+
 		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 
 
-	  glfwSwapBuffers(m_pWin);
+	  glfwSwapBuffers(m_pWindow);
   	glfwPollEvents();
 
 	}
@@ -113,7 +121,7 @@ namespace SimpleEngine {
 	}
 
 	void Window::shutdown() noexcept {
-		glfwDestroyWindow(m_pWin);
+		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 	}
 }
