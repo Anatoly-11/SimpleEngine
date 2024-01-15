@@ -23,7 +23,8 @@ namespace SimpleEngine {
 		return true;
 	}
 
-	ShaderProgram::ShaderProgram(const char *vertex_shader_src, const char *fragment_shader_src) noexcept {
+  ShaderProgram::ShaderProgram(const char *vertex_shader_src, const char *fragment_shader_src) noexcept :
+    m_id(0), m_isCompiled(false) {
     GLuint vertex_shader_id = 0;
     if(!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id)) {
       LOG_CRITICAL("VERTEX SHADER: compile-time error!");

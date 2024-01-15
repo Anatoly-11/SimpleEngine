@@ -17,7 +17,7 @@ namespace SimpleEngine {
     bool isCompiled() const noexcept;//{ return m_isCompiled; }
 
   private:
-    bool m_isCompiled = false;
-    unsigned int m_id = 0;
+    bool m_isCompiled;
+    unsigned int m_id;
   };
 }
