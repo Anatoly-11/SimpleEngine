@@ -23,77 +23,77 @@ namespace SimpleEngine {
 		return true;
 	}
 
-  ShaderProgram::ShaderProgram(const char *vertex_shader_src, const char *fragment_shader_src) noexcept :
-    m_id(0), m_isCompiled(false) {
-    GLuint vertex_shader_id = 0;
-    if(!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id)) {
-      LOG_CRITICAL("VERTEX SHADER: compile-time error!");
-      glDeleteShader(vertex_shader_id);
-      return;
-    }
+	ShaderProgram::ShaderProgram(const char *vertex_shader_src, const char *fragment_shader_src) noexcept :
+		m_id(0), m_isCompiled(false) {
+		GLuint vertex_shader_id = 0;
+		if(!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id)) {
+			LOG_CRITICAL("VERTEX SHADER: compile-time error!");
+			glDeleteShader(vertex_shader_id);
+			return;
+		}
 
-    GLuint fragment_shader_id = 0;
-    if(!create_shader(fragment_shader_src, GL_FRAGMENT_SHADER, fragment_shader_id)) {
-      LOG_CRITICAL("FRAGMENT SHADER: compile-time error!");
-      glDeleteShader(vertex_shader_id);
-      glDeleteShader(fragment_shader_id);
-      return;
-    }
+		GLuint fragment_shader_id = 0;
+		if(!create_shader(fragment_shader_src, GL_FRAGMENT_SHADER, fragment_shader_id)) {
+			LOG_CRITICAL("FRAGMENT SHADER: compile-time error!");
+			glDeleteShader(vertex_shader_id);
+			glDeleteShader(fragment_shader_id);
+			return;
+		}
 
-    m_id = glCreateProgram();
-    glAttachShader(m_id, vertex_shader_id);
-    glAttachShader(m_id, fragment_shader_id);
-    glLinkProgram(m_id);
+		m_id = glCreateProgram();
+		glAttachShader(m_id, vertex_shader_id);
+		glAttachShader(m_id, fragment_shader_id);
+		glLinkProgram(m_id);
 
-    GLint success;
-    glGetProgramiv(m_id, GL_LINK_STATUS, &success);
-    if(success == GL_FALSE) {
-      GLchar info_log[1024];
-      glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
-      LOG_CRITICAL("SHADER PROGRAM: Link-time error:\n{0}", info_log);
-      glDeleteProgram(m_id);
-      m_id = 0;
-      glDeleteShader(vertex_shader_id);
-      glDeleteShader(fragment_shader_id);
-      return;
-    } else {
-      m_isCompiled = true;
-    }
+		GLint success;
+		glGetProgramiv(m_id, GL_LINK_STATUS, &success);
+		if(success == GL_FALSE) {
+			GLchar info_log[1024];
+			glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
+			LOG_CRITICAL("SHADER PROGRAM: Link-time error:\n{0}", info_log);
+			glDeleteProgram(m_id);
+			m_id = 0;
+			glDeleteShader(vertex_shader_id);
+			glDeleteShader(fragment_shader_id);
+			return;
+		} else {
+			m_isCompiled = true;
+		}
 
-    glDetachShader(m_id, vertex_shader_id);
-    glDetachShader(m_id, fragment_shader_id);
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
+		glDetachShader(m_id, vertex_shader_id);
+		glDetachShader(m_id, fragment_shader_id);
+		glDeleteShader(vertex_shader_id);
+		glDeleteShader(fragment_shader_id);
 	}
 	
 	ShaderProgram::ShaderProgram(ShaderProgram &&shaderProgram) noexcept {
-    m_id = shaderProgram.m_id;
-    m_isCompiled = shaderProgram.m_isCompiled;
+		m_id = shaderProgram.m_id;
+		m_isCompiled = shaderProgram.m_isCompiled;
 
-    shaderProgram.m_id = 0;
-    shaderProgram.m_isCompiled = false;
+		shaderProgram.m_id = 0;
+		shaderProgram.m_isCompiled = false;
 	}
 
 	ShaderProgram &ShaderProgram::operator=(ShaderProgram &&shaderProgram) noexcept {
-    glDeleteProgram(m_id);
-    m_id = shaderProgram.m_id;
-    m_isCompiled = shaderProgram.m_isCompiled;
+		glDeleteProgram(m_id);
+		m_id = shaderProgram.m_id;
+		m_isCompiled = shaderProgram.m_isCompiled;
 
-    shaderProgram.m_id = 0;
-    shaderProgram.m_isCompiled = false;
-    return *this;
+		shaderProgram.m_id = 0;
+		shaderProgram.m_isCompiled = false;
+		return *this;
 	}
 	
 	ShaderProgram::~ShaderProgram() noexcept {
-    glDeleteProgram(m_id);
+		glDeleteProgram(m_id);
 	}
 
 	void ShaderProgram::bind() const noexcept {
-    glUseProgram(m_id);
+		glUseProgram(m_id);
 	}
 
 	void ShaderProgram::unbind() noexcept {
-    glUseProgram(0);
+		glUseProgram(0);
 	}
 
 	bool ShaderProgram::isCompiled() const noexcept {

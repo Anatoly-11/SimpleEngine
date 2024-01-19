@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 if(UNIX AND NOT APPLE)
-  set(CMAKE_CXX_COMPILER "/usr/bin/g++-13")
+	set(CMAKE_CXX_COMPILER "/usr/bin/g++-13")
 	set(CMAKE_C_COMPILER "/usr/bin/gcc-13")
 endif()
 
