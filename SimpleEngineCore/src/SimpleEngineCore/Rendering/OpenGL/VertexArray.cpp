@@ -7,7 +7,7 @@
 
 namespace SimpleEngine {
 
-	VertexArray::VertexArray() noexcept : m_id(0), m_elements_count(0) {
+	VertexArray::VertexArray() noexcept : m_id(0), m_elements_count(0), m_indices_count(0) {
 		glGenVertexArrays(1, &m_id);
 	}
 
@@ -30,7 +30,7 @@ namespace SimpleEngine {
 		vertexArray.m_id = 0;
 	}
 
-	void VertexArray::add_buffer(const VertexBuffer &vertex_buffer) noexcept {
+	void VertexArray::add_vertex_buffer(const VertexBuffer &vertex_buffer) noexcept {
 		bind();
 		vertex_buffer.bind();
 
@@ -41,11 +41,20 @@ namespace SimpleEngine {
 					reinterpret_cast<const void*>(current_element.offset));
 			++m_elements_count;
 		}
-		/*glEnableVertexAttribArray(m_elements_count);
-		glVertexAttribPointer(m_elements_count, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		++m_elements_count;*/
 	}
+
+	size_t VertexArray::get_indices_count() const noexcept {
+		return m_indices_count;
+	}
+
+	void VertexArray::set_index_buffer(const IndexBuffer &index_buffer) noexcept {
+		bind();
+		index_buffer.bind();
+		m_indices_count = index_buffer.get_count();
+
 	
+	}
+
 	void VertexArray::bind() const noexcept {
 		glBindVertexArray(m_id);
 	}
