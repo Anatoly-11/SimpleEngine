@@ -1,4 +1,5 @@
 #pragma once
+#include "glm//mat4x4.hpp"
 
 namespace SimpleEngine {
 
@@ -14,8 +15,8 @@ namespace SimpleEngine {
 
     void bind() const noexcept;
     static void unbind() noexcept;
-    bool isCompiled() const noexcept;//{ return m_isCompiled; }
-
+    bool isCompiled() const noexcept;
+		void setMatrix4(const char *name, const glm::mat4 &matrix) const noexcept;
   private:
     bool m_isCompiled;
     unsigned int m_id;

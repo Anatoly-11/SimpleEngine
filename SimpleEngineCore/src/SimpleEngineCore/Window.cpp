@@ -11,6 +11,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include "glm/mat3x3.hpp"
+#include "glm/trigonometric.hpp"
 
 namespace SimpleEngine {
 
@@ -25,27 +26,31 @@ namespace SimpleEngine {
 	GLuint indices[]{0, 1, 2, 3, 2, 1};
 
 	const char *vertex_shader =
-		"#version 460\n"
-		"layout(location = 0) in vec3 vertex_position;"
-		"layout(location = 1) in vec3 vertex_color;"
-		"out vec3 color;"
-		"void main() {"
-		"   color = vertex_color;"
-		"   gl_Position = vec4(vertex_position, 1.0);"
-		"}";
+		R"(#version 460
+		layout(location = 0) in vec3 vertex_position;
+		layout(location = 1) in vec3 vertex_color;
+		uniform mat4 model_matrix;
+		out vec3 color;
+		void main() {
+		   color = vertex_color;
+		   gl_Position = model_matrix * vec4(vertex_position, 1.0);
+		})";
 
 	const char *fragment_shader =
-		"#version 460\n"
-		"in vec3 color;"
-		"out vec4 frag_color;"
-		"void main() {"
-		"   frag_color = vec4(color, 1.0);"
-		"}";
+		R"(#version 460
+		in vec3 color;
+		out vec4 frag_color;
+		void main() {
+		   frag_color = vec4(color, 1.0);
+		})";
 
 	std::unique_ptr<ShaderProgram> p_shader_program;
 	std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
 	std::unique_ptr<IndexBuffer> p_index_buffer;
 	std::unique_ptr<VertexArray> p_vao;
+	float scale[]{1.f, 1.f, 1.f};
+	float rotate = 0.f;
+	float translate[]{0.f, 0.f, 1.f};
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) noexcept
 		: m_pWindow(nullptr), m_data{std::move(title), width, height, nullptr}, m_background_color{0.33f, 0.33f, 0.33f, 0.f} {
@@ -124,7 +129,7 @@ namespace SimpleEngine {
 		p_vao->add_vertex_buffer(*p_positions_colors_vbo);
 		p_vao->set_index_buffer(*p_index_buffer);
 
-		glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
+		/*glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
 		glm::mat3 mat_2(4, 2, 9, 2, 0, 4, 1, 4, 2);
 
 		glm::mat3 result_mat = mat_1 * mat_2;
@@ -139,7 +144,7 @@ namespace SimpleEngine {
 		glm::mat4 mat_E(1);
 		glm::vec4 res_vec = mat_E * vec;
 
-		LOG_INFO("({0} {1} {2} {3})", res_vec.x, res_vec.y, res_vec.z, res_vec.w);
+		LOG_INFO("({0} {1} {2} {3})", res_vec.x, res_vec.y, res_vec.z, res_vec.w);*/
 
 		return 0;
 	}
@@ -158,13 +163,42 @@ namespace SimpleEngine {
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		ImGui::NewFrame() ;
 
 		//ImGui::ShowDemoWindow();
 
 		ImGui::Begin("Background Color Window");
 		ImGui::ColorEdit4("Background Color", m_background_color);
+		ImGui::SliderFloat3("scale", scale, 0.f, 2.f);
+		ImGui::SliderFloat("rotate", &rotate, 0.f, 360.f);
+		ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
+
 		p_shader_program->bind();
+
+		glm::mat4 scale_matrix(
+			scale[0],        0,        0,       0,
+			0       , scale[1],        0,       0,
+			0       , 0       , scale[2],       0, 
+			0       , 0       ,        0,       1
+		);
+		float rotate_in_rads = glm::radians(rotate);
+		glm::mat4 rotate_matrix(
+		 cos(rotate_in_rads), sin(rotate_in_rads), 0, 0,
+		-sin(rotate_in_rads), cos(rotate_in_rads), 0, 0,
+		                   0,                   0, 1, 0,
+			                 0,                   0, 0, 1
+		);
+
+		glm::mat4 translate_matrix(
+		 1           , 0           , 0           , 0,
+		 0           , 1           , 0           , 0,
+     0           , 0           , 1           , 0,
+		 translate[0], translate[1], translate[2], 1
+		);
+		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
+
+		p_shader_program->setMatrix4("model_matrix", model_matrix);
+
 		p_vao->bind();
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
 
