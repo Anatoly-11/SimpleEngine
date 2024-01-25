@@ -6,7 +6,8 @@
 #include "SimpleEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 #include "SimpleEngineCore/Camera.hpp"
 
-#include "glad/glad.h"
+#include "SimpleEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
+
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -16,7 +17,6 @@
 
 namespace SimpleEngine {
 
-	static bool s_GLFW_initialized = false;
 	GLfloat positions_colors2[]{
 		-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
 		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
@@ -72,30 +72,28 @@ namespace SimpleEngine {
 	}
 
 	int Window::init() noexcept {
-		LOG_INFO("Creating window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.height);
-		if(!s_GLFW_initialized) {
-			if(!glfwInit()) {
-				LOG_CRITICAL("Failed to initialized GLFW");
-				return -1;
-			}
-			s_GLFW_initialized = true;
-		}
 
-		//GLFWmonitor *pMon = glfwGetPrimaryMonitor();
+		LOG_INFO("Creating window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.height);
+		glfwSetErrorCallback([](int error_code, const char *description) {
+			LOG_CRITICAL("GLFW error: {0}", description);
+		});
+
+		if(!glfwInit()) {
+			LOG_CRITICAL("Failed to initialized GLFW");
+			return -1;
+		}
+		
 		m_pWindow = glfwCreateWindow(m_data.width, m_data.width, m_data.title.c_str(), nullptr, nullptr);
 		if(!m_pWindow) {
-			glfwTerminate();
 			LOG_ERROR("Can't create GLFWwindow window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.width);
-			s_GLFW_initialized = false;
 			return -2;
 		}
 
-		glfwMakeContextCurrent(m_pWindow); // Make the pWin's context current
-
-		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-			LOG_CRITICAL("Failed to initialized GLAD");
+		if(!Render_OpenGL::init(m_pWindow)) {
+			LOG_CRITICAL("Failed to initialized OpenGL renderer");
 			return -3;
 		}
+
 		glfwSetWindowUserPointer(m_pWindow, &m_data);
 		glfwSetWindowSizeCallback(m_pWindow,	[](GLFWwindow *pWindow, int width, int height) {
 			WindowData &data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
@@ -118,7 +116,7 @@ namespace SimpleEngine {
 		});
 
 		glfwSetFramebufferSizeCallback(m_pWindow, [](GLFWwindow *pWindow, int width, int height) {
-			glViewport(0, 0, width, height);
+			Render_OpenGL::set_viewport(width, height);
 		});
 
 		p_shader_program = std::make_unique<ShaderProgram>(vertex_shader, fragment_shader);
@@ -135,23 +133,6 @@ namespace SimpleEngine {
 		p_vao->add_vertex_buffer(*p_positions_colors_vbo);
 		p_vao->set_index_buffer(*p_index_buffer);
 
-		/*glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
-		glm::mat3 mat_2(4, 2, 9, 2, 0, 4, 1, 4, 2);
-
-		glm::mat3 result_mat = mat_1 * mat_2;
-
-		LOG_INFO("");
-		LOG_INFO("|{0:3} {1:3} {2:3}|", result_mat[0][0], result_mat[1][0], result_mat[2][0]);
-		LOG_INFO("|{0:3} {1:3} {2:3}|", result_mat[0][1], result_mat[1][1], result_mat[2][1]);
-		LOG_INFO("|{0:3} {1:3} {2:3}|", result_mat[0][2], result_mat[1][2], result_mat[2][2]);
-		LOG_INFO("");
-
-		glm::vec4 vec(1, 2, 3, 4);
-		glm::mat4 mat_E(1);
-		glm::vec4 res_vec = mat_E * vec;
-
-		LOG_INFO("({0} {1} {2} {3})", res_vec.x, res_vec.y, res_vec.z, res_vec.w);*/
-
 		return 0;
 	}
 
@@ -160,8 +141,10 @@ namespace SimpleEngine {
 	}
 
 	void Window::on_update() noexcept {
-		glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
-		glClear(GL_COLOR_BUFFER_BIT);
+		
+		Render_OpenGL::set_clear_color(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
+		Render_OpenGL::clear();
+
 
 		ImGuiIO &io = ImGui::GetIO();
 		io.DisplaySize.x = static_cast<float>(get_width());
@@ -169,9 +152,7 @@ namespace SimpleEngine {
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame() ;
-
-		//ImGui::ShowDemoWindow();
+		ImGui::NewFrame();
 
 		ImGui::Begin("Background Color Window");
 		ImGui::ColorEdit4("Background Color", m_background_color);
@@ -186,26 +167,27 @@ namespace SimpleEngine {
 		p_shader_program->bind();
 
 		glm::mat4 scale_matrix(
-			scale[0],        0,        0,       0,
-			0       , scale[1],        0,       0,
-			0       , 0       , scale[2],       0, 
-			0       , 0       ,        0,       1
+			scale[0], 0, 0, 0,
+			0, scale[1], 0, 0,
+			0, 0, scale[2], 0,
+			0, 0, 0, 1
 		);
 
 		float rotate_in_rads = glm::radians(rotate);
 		glm::mat4 rotate_matrix(
-		 cos(rotate_in_rads), sin(rotate_in_rads), 0, 0,
+			cos(rotate_in_rads), sin(rotate_in_rads), 0, 0,
 		-sin(rotate_in_rads), cos(rotate_in_rads), 0, 0,
-		                   0,                   0, 1, 0,
-			                 0,                   0, 0, 1
+												0, 0, 1, 0,
+												0, 0, 0, 1
 		);
 
 		glm::mat4 translate_matrix(
-		 1           , 0           , 0           , 0,
-		 0           , 1           , 0           , 0,
-     0           , 0           , 1           , 0,
-		 translate[0], translate[1], translate[2], 1
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translate[0], translate[1], translate[2], 1
 		);
+
 		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
 
 		p_shader_program->setMatrix4("model_matrix", model_matrix);
@@ -215,18 +197,15 @@ namespace SimpleEngine {
 
 		p_shader_program->setMatrix4("view_ptojection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 
-		p_vao->bind();
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
+		Render_OpenGL::draw(*p_vao);
 
 		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
 		glfwSwapBuffers(m_pWindow);
 		glfwPollEvents();
-
 	}
 
 	unsigned int Window::get_width() const noexcept {
@@ -238,6 +217,11 @@ namespace SimpleEngine {
 	}
 
 	void Window::shutdown() noexcept {
+		if(ImGui::GetCurrentContext()) {
+			ImGui_ImplGlfw_Shutdown();
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui::DestroyContext();
+		}
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 	}

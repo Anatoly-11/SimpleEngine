@@ -19,6 +19,7 @@ set(ENGINE_PUBLIC_INCLUDES
 
 set(ENGINE_PRIVATE_INCLUDES
 	src/SimpleEngineCore/Window.hpp
+	src/SimpleEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp
 	src/SimpleEngineCore/Rendering/OpenGL/ShaderProgram.hpp
 	src/SimpleEngineCore/Rendering/OpenGL/VertexBuffer.hpp
 	src/SimpleEngineCore/Rendering/OpenGL/VertexArray.hpp
@@ -29,6 +30,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/SimpleEngineCore/Application.cpp
 	src/SimpleEngineCore/Window.cpp
 	src/SimpleEngineCore/Camera.cpp
+	src/SimpleEngineCore/Rendering/OpenGL/Renderer_OpenGL.cpp
 	src/SimpleEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/SimpleEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 	src/SimpleEngineCore/Rendering/OpenGL/VertexArray.cpp
