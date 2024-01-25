@@ -5,6 +5,8 @@
 #include "SimpleEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "SimpleEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 #include "SimpleEngineCore/Camera.hpp"
+#include "SimpleEngineCore/Modules/UIModule.hpp"
+
 
 #include "SimpleEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
 
@@ -60,11 +62,7 @@ namespace SimpleEngine {
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) noexcept
 		: m_pWindow(nullptr), m_data{std::move(title), width, height, nullptr}, m_background_color{0.33f, 0.33f, 0.33f, 0.f} {
-		int res = init();
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGui_ImplOpenGL3_Init();
-		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
+		int resultCode = init();
 	}
 
 	Window::~Window() noexcept {
@@ -119,6 +117,8 @@ namespace SimpleEngine {
 			Render_OpenGL::set_viewport(width, height);
 		});
 
+		UIModule::on_window_create(m_pWindow);
+
 		p_shader_program = std::make_unique<ShaderProgram>(vertex_shader, fragment_shader);
 		if(!p_shader_program->isCompiled()) {
 			return false;
@@ -150,19 +150,6 @@ namespace SimpleEngine {
 		io.DisplaySize.x = static_cast<float>(get_width());
 		io.DisplaySize.y = static_cast<float>(get_height());
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::Begin("Background Color Window");
-		ImGui::ColorEdit4("Background Color", m_background_color);
-		ImGui::SliderFloat3("scale", scale, 0.f, 2.f);
-		ImGui::SliderFloat("rotate", &rotate, 0.f, 360.f);
-		ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
-
-		ImGui::SliderFloat3("Camera positon", camera_position, -10.f, 10.f);
-		ImGui::SliderFloat3("Camera rotation", camera_rotation, -180.f, 180.f);
-		ImGui::Checkbox("Perspective camera", &perspective_camera);
 
 		p_shader_program->bind();
 
@@ -199,10 +186,24 @@ namespace SimpleEngine {
 
 		Render_OpenGL::draw(*p_vao);
 
+		UIModule::on_ui_draw_begin();
+
+		bool show = true;
+		UIModule::ShowExampleAppDockSpace(&show);
+		ImGui::ShowDemoWindow();
+
+		ImGui::Begin("Background Color Window");
+		ImGui::ColorEdit4("Background Color", m_background_color);
+		ImGui::SliderFloat3("scale", scale, 0.f, 2.f);
+		ImGui::SliderFloat("rotate", &rotate, 0.f, 360.f);
+		ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
+
+		ImGui::SliderFloat3("Camera positon", camera_position, -10.f, 10.f);
+		ImGui::SliderFloat3("Camera rotation", camera_rotation, -180.f, 180.f);
+		ImGui::Checkbox("Perspective camera", &perspective_camera);
 		ImGui::End();
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		UIModule::on_ui_draw_end();
 
 		glfwSwapBuffers(m_pWindow);
 		glfwPollEvents();
@@ -217,11 +218,7 @@ namespace SimpleEngine {
 	}
 
 	void Window::shutdown() noexcept {
-		if(ImGui::GetCurrentContext()) {
-			ImGui_ImplGlfw_Shutdown();
-			ImGui_ImplOpenGL3_Shutdown();
-			ImGui::DestroyContext();
-		}
+		UIModule::on_window_close();
 		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 	}
