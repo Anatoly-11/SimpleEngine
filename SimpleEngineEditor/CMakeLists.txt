@@ -14,7 +14,7 @@ add_executable(${EDITOR_PROJECT_NAME}
 	src/main.cpp
 )
 
-target_link_libraries(${EDITOR_PROJECT_NAME} SimpleEngineCore)
+target_link_libraries(${EDITOR_PROJECT_NAME} SimpleEngineCore ImGui glm)
 
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_20)
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC c_std_17)

@@ -35,6 +35,5 @@ namespace SimpleEngine {
 
 		GLFWwindow *m_pWindow;
 		WindowData m_data;
-		float m_background_color[4];
 	};
 }
