@@ -1,6 +1,5 @@
 #pragma once
 
-//#include <glm/vec3.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 
 namespace SimpleEngine {

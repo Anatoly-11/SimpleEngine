@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <array>
+#include "Keys.hpp"
 
 namespace SimpleEngine {
   enum class EventType {
@@ -18,8 +19,8 @@ namespace SimpleEngine {
   };
 
   struct BaseEvent {
-    virtual ~BaseEvent() = default;
-    virtual EventType get_type() const = 0;
+    virtual ~BaseEvent() noexcept = default;
+    virtual EventType get_type() const noexcept = 0;
   };
 
 
@@ -35,7 +36,7 @@ namespace SimpleEngine {
       m_eventCallbacks[static_cast<size_t>(EventType::type)] = std::move(baseCallback);
     }
 
-    void dispatch(BaseEvent &event) {
+    void dispatch(BaseEvent &event) noexcept {
       auto &callback = m_eventCallbacks[static_cast<size_t>(event.get_type())];
       if(callback) {
         callback(event);
@@ -48,10 +49,10 @@ namespace SimpleEngine {
 
 
   struct EventMouseMoved : public BaseEvent {
-    EventMouseMoved(const double new_x, const double new_y) : x(new_x), y(new_y) {
+    EventMouseMoved(const double new_x, const double new_y) noexcept : x(new_x), y(new_y) {
     }
 
-    virtual EventType get_type() const override {
+    virtual EventType get_type() const noexcept override {
       return type;
     }
 
@@ -62,11 +63,12 @@ namespace SimpleEngine {
   };
 
   struct EventWindowResize : public BaseEvent {
-    EventWindowResize(const unsigned int new_width, const unsigned int new_height)
-      : width(new_width)
-      , height(new_height) {}
+    EventWindowResize(const unsigned int new_width, const unsigned int new_height) noexcept:
+			width(new_width),
+			height(new_height) {
+		}
 
-    virtual EventType get_type() const override {
+    virtual EventType get_type() const noexcept override {
       return type;
     }
 
@@ -77,10 +79,37 @@ namespace SimpleEngine {
   };
 
   struct EventWindowClose : public BaseEvent {
-    virtual EventType get_type() const override {
+    virtual EventType get_type() const noexcept override {
       return type;
     }
 
     static const EventType type = EventType::WindowClose;
   };
+
+	struct EventKeyPressed: public BaseEvent {
+		EventKeyPressed(const KeyCode _key_code, const bool _repeated) noexcept : 
+			key_code(_key_code), repeated(_repeated) {
+		}
+
+		virtual EventType get_type() const noexcept override {
+			return type;
+		}
+
+		KeyCode key_code;
+		bool repeated;
+		static const EventType type = EventType::KeyPressed;
+	};
+
+	struct EventKeyReleased: public BaseEvent {
+		EventKeyReleased(const KeyCode _key_code) noexcept :
+			key_code(_key_code) {
+		}
+
+		virtual EventType get_type() const noexcept override {
+			return type;
+		}
+
+		KeyCode key_code;
+		static const EventType type = EventType::KeyReleased;
+	};
 }
