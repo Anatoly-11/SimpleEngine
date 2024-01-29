@@ -1,5 +1,6 @@
 #include "SimpleEngineCore/Camera.hpp"
-#include "glm/trigonometric.hpp"
+#include <glm/trigonometric.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 namespace SimpleEngine {
 
@@ -9,6 +10,14 @@ namespace SimpleEngine {
 		update_projection_matrix();
 	}
 
+	const glm::vec3 &Camera::get_camera_position() const noexcept {
+		return m_position;
+	}
+
+	const glm::vec3 &Camera::get_camera_rotation() const noexcept {
+		return m_rotation;
+	}
+
 	void Camera::set_position(const glm::vec3 &position) noexcept {
 		m_position = position;
 		update_view_matrix();
@@ -16,6 +25,7 @@ namespace SimpleEngine {
 
 	void Camera::set_rotation(const glm::vec3 &rotation) noexcept {
 		m_rotation = rotation;
+		update_view_matrix();
 	}
 
 	void Camera::set_position_rotation(const glm::vec3 &position, const glm::vec3 &rotation) noexcept {
@@ -30,52 +40,76 @@ namespace SimpleEngine {
 	}
 
 	glm::mat4 Camera::get_view_matrix() const noexcept {
-		return m_view_matrix;
+		return m_view_matrix; 
 	}
 
 	glm::mat4 Camera::get_projection_matrix() const  noexcept {
 		return m_projection_matrix;
 	}
 
+	void Camera::move_forward(const float delta) noexcept {
+		m_position += m_direction * delta;
+		update_view_matrix();
+	}
+	
+	void Camera::move_right(const float delta) noexcept {
+		m_position += m_right * delta;
+		update_view_matrix();
+	}
+	
+	void Camera::move_up(const float delta) noexcept {
+		m_position += m_up * delta;
+		update_view_matrix();
+	}
+
+	void Camera::add_movement_and_roation(const glm::vec3& movement_delta, const glm::vec3& rotation_delta) noexcept {
+		m_position += m_direction * movement_delta.x;
+		m_position += m_right     * movement_delta.y;
+		m_position += m_up        * movement_delta.z;
+		m_rotation += rotation_delta;
+		update_view_matrix();
+	}
+
 	void Camera::update_view_matrix() noexcept {
+		//float roll_in_radians  = glm::radians(m_rotation.x);
+		//float pitch_in_radians = glm::radians(m_rotation.y);
+		//float yaw_in_radians   = glm::radians(m_rotation.z);
+
 		auto sincos = [](const float angle, float *s, float *c) {
-			*s = sin(glm::radians(-angle));
-			*c = cos(glm::radians(-angle));
+			const float a = glm::radians(angle);
+			*s = sin(a);
+			*c = cos(a);
 		};
 	
 		float s, c;
 		sincos(m_rotation.x, &s, &c);
-		glm::mat4 rotate_matrix_x(
-		 1,  0, 0, 0,
-		 0,  c, s, 0,
-		 0, -s, c, 0,
-		 0,  0, 0, 1
+		const glm::mat3 rotate_matrix_x(
+		 1,  0,  0,
+		 0,  c,  s,
+		 0, -s,  c
 		);
 
 		sincos(m_rotation.y, &s, &c);
-		glm::mat4 rotate_matrix_y(
-		 c, 0, s, 0,
-		 0, 1, 0, 0,
-		-s, 0, c, 0,
-		 0, 0, 0, 1
+		const glm::mat3 rotate_matrix_y(
+		 c, 0, -s,
+		 0, 1,  0,
+		 s, 0,  c
 		);
 
 		sincos(m_rotation.z, &s, &c);
-		glm::mat4 rotate_matrix_z(
-		 c, s, 0, 0,
-		-s, c, 0, 0,
-		 0, 0, 1, 0,
-		 0, 0, 0, 1
+		const glm::mat3 rotate_matrix_z(
+		 c, s, 0,
+		-s, c, 0,
+		 0, 0, 1
 		);
 
-		glm::mat4 translate_matrix(
-		 1, 0, 0, 0,
-		 0, 1, 0, 0,
-		 0, 0, 1, 0,
-		 -m_position[0], -m_position[1], -m_position[2], 1
-		);
+		const glm::mat3 euler_rotate_matrix = rotate_matrix_z * rotate_matrix_y * rotate_matrix_x;
 
-		m_view_matrix = rotate_matrix_z * rotate_matrix_y * rotate_matrix_x * translate_matrix;
+		m_direction = glm::normalize(euler_rotate_matrix * s_word_forward);
+		m_right     = glm::normalize(euler_rotate_matrix * s_word_right);
+		m_up        = glm::cross(m_right, m_direction);
+
+		m_view_matrix = glm::lookAt(m_position, m_position + m_direction, m_up);
 	}
 
 	void Camera::update_projection_matrix() noexcept {

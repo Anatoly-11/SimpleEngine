@@ -24,10 +24,10 @@
 namespace SimpleEngine {
 	
 	GLfloat positions_colors2[]{
-		-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-		-0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f
+		0.0f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+		0.0f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+		0.0f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+		0.0f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f
 	};
 
 	GLuint indices[]{0, 1, 2, 3, 2, 1};
@@ -65,7 +65,8 @@ namespace SimpleEngine {
 	Application::Application() noexcept : m_bCloseWindow(false),
 		camera_position{0.f, 0.f, 1.f},
 		camera_rotation{0.f, 0.f, 0.f},
-		perspective_camera(true) {
+		perspective_camera(true),
+		camera{glm::vec3(-5, 0, 0)} {
 		LOG_INFO("Starting Application");
 	}
 
@@ -383,8 +384,6 @@ namespace SimpleEngine {
 			glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
 
 			p_shader_program->setMatrix4("model_matrix", model_matrix);
-			camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]),
-				glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
 			camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 			p_shader_program->setMatrix4("view_ptojection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 			Render_OpenGL::draw(*p_vao);

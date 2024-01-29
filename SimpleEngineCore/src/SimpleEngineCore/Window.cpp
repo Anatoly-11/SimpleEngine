@@ -34,7 +34,7 @@ namespace SimpleEngine {
 			return -1;
 		}
 		
-		m_pWindow = glfwCreateWindow(m_data.width, m_data.width, m_data.title.c_str(), nullptr, nullptr);
+		m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
 		if(!m_pWindow) {
 			LOG_ERROR("Can't create GLFWwindow window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.width);
 			return -2;
