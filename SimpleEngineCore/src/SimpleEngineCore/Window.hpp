@@ -2,10 +2,12 @@
 #include "SimpleEngineCore/Event.hpp"
 #include <string>
 #include <functional>
+#include <glm/ext/vector_float2.hpp>
+
 struct GLFWwindow;
 
 namespace SimpleEngine {
-	struct Window {
+	class Window {
 #pragma region hide
 		Window(const Window &) = delete;
 		Window(Window &&) = delete;
@@ -20,6 +22,7 @@ namespace SimpleEngine {
 		void on_update() noexcept;
 		unsigned int get_width() const noexcept;
 		unsigned int get_height() const noexcept;
+		glm::vec2 get_current_cursor_position() const noexcept;
 
 		void set_event_callback(const EventCallbackFn &callback) noexcept;
 	private:

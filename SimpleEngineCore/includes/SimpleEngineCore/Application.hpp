@@ -25,6 +25,10 @@ namespace SimpleEngine {
 
 		virtual void on_ui_draw() noexcept;
 
+		virtual void on_mouse_button_pressed(const MouseButton button_code, const double _x_pos, const double _y_pos, const bool pressed) noexcept;
+
+		glm::vec2 get_current_cursor_position() const noexcept;
+
 		float camera_position[3];
 		float camera_rotation[3];
 		bool perspective_camera;

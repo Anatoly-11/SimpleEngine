@@ -73,6 +73,13 @@ namespace SimpleEngine {
 	void Application::on_ui_draw() noexcept {
 	}
 
+	void Application::on_mouse_button_pressed(const MouseButton button_code, const double _x_pos, const double _y_pos, const bool pressed) noexcept {
+	}
+
+	glm::vec2 Application::get_current_cursor_position() const noexcept {
+		return m_pWindow->get_current_cursor_position();
+	}
+
 	Application::~Application() noexcept {
 		LOG_INFO("Closing Application");
 	}
@@ -94,242 +101,30 @@ namespace SimpleEngine {
 			m_bCloseWindow = true;
 		});
 
-		auto keyToStr = [](const KeyCode key, char *buf) {
-			if((int)KeyCode::KEY_SPACE <= (int)key && (int)key <= (int)KeyCode::KEY_GRAVE_ACCENT) {
-				buf[0] = (char)key;
-				buf[1] = '\0';
-			} else switch(key) {
-			case KeyCode::KEY_ESCAPE:
-			strcpy(buf, "ESCAPE");
-			break;
-			case KeyCode::KEY_ENTER:
-			strcpy(buf, "ENTER");
-			break;
-			case KeyCode::KEY_TAB:
-			strcpy(buf, "TAB");
-			break;
-			case KeyCode::KEY_BACKSPACE:
-			strcpy(buf, "BACKSPACE");
-			break;
-			case KeyCode::KEY_INSERT:
-			strcpy(buf, "INSERT");
-			break;
-			case KeyCode::KEY_DELETE:
-			strcpy(buf, "DELETE");
-			break;
-			case KeyCode::KEY_RIGHT:
-			strcpy(buf, "RIGHT");
-			break;
-			case KeyCode::KEY_LEFT:
-			strcpy(buf, "LEFT");
-			break;
-			case KeyCode::KEY_DOWN:
-			strcpy(buf, "DOWN");
-			break;
-			case KeyCode::KEY_UP:
-			strcpy(buf, "UP");
-			break;
-			case KeyCode::KEY_PAGE_UP:
-			strcpy(buf, "ENTER");
-			break;
-			case KeyCode::KEY_PAGE_DOWN:
-			strcpy(buf, "PAGE_UP");
-			break;
-			case KeyCode::KEY_HOME:
-			strcpy(buf, "HOME");
-			break;
-			case KeyCode::KEY_END:
-			strcpy(buf, "END");
-			break;
-			case KeyCode::KEY_CAPS_LOCK:
-			strcpy(buf, "CAPS_LOCK");
-			break;
-			case KeyCode::KEY_SCROLL_LOCK:
-			strcpy(buf, "SCROLL_LOCK");
-			break;
-			case KeyCode::KEY_NUM_LOCK:
-			strcpy(buf, "NUM_LOCK");
-			break;
-			case KeyCode::KEY_PRINT_SCREEN:
-			strcpy(buf, "PRINT_SCREEN");
-			break;
-			case KeyCode::KEY_PAUSE:
-			strcpy(buf, "PAUSE");
-			break;
-			case KeyCode::KEY_F1:
-			strcpy(buf, "F1");
-			break;
-			case KeyCode::KEY_F2:
-			strcpy(buf, "F2");
-			break;
-			case KeyCode::KEY_F3:
-			strcpy(buf, "F3");
-			break;
-			case KeyCode::KEY_F4:
-			strcpy(buf, "F4");
-			break;
-			case KeyCode::KEY_F5:
-			strcpy(buf, "F5");
-			break;
-			case KeyCode::KEY_F6:
-			strcpy(buf, "F6");
-			break;
-			case KeyCode::KEY_F7:
-			strcpy(buf, "F7");
-			break;
-			case KeyCode::KEY_F8:
-			strcpy(buf, "F8");
-			break;
-			case KeyCode::KEY_F9:
-			strcpy(buf, "F9");
-			break;
-			case KeyCode::KEY_F10:
-			strcpy(buf, "F10");
-			break;
-			case KeyCode::KEY_F11:
-			strcpy(buf, "F11");
-			break;
-			case KeyCode::KEY_F12:
-			strcpy(buf, "F12");
-			break;
-			case KeyCode::KEY_F13:
-			strcpy(buf, "F13");
-			break;
-			case KeyCode::KEY_F14:
-			strcpy(buf, "F14");
-			break;
-			case KeyCode::KEY_F15:
-			strcpy(buf, "F15");
-			break;
-			case KeyCode::KEY_F16:
-			strcpy(buf, "F16");
-			break;
-			case KeyCode::KEY_F17:
-			strcpy(buf, "ENTER");
-			break;
-			case KeyCode::KEY_F18:
-			strcpy(buf, "F17");
-			break;
-			case KeyCode::KEY_F19:
-			strcpy(buf, "F19");
-			break;
-			case KeyCode::KEY_F20:
-			strcpy(buf, "F20");
-			break;
-			case KeyCode::KEY_F21:
-			strcpy(buf, "F21");
-			break;
-			case KeyCode::KEY_F22:
-			strcpy(buf, "F22");
-			break;
-			case KeyCode::KEY_F23:
-			strcpy(buf, "F23");
-			break;
-			case KeyCode::KEY_F24:
-			strcpy(buf, "F24");
-			break;
-			case KeyCode::KEY_F25:
-			strcpy(buf, "F25");
-			break;
-			case KeyCode::KEY_KP_0:
-			strcpy(buf, "KP_0");
-			break;
-			case KeyCode::KEY_KP_1:
-			strcpy(buf, "KP_1");
-			break;
-			case KeyCode::KEY_KP_2:
-			strcpy(buf, "KP_2");
-			break;
-			case KeyCode::KEY_KP_3:
-			strcpy(buf, "KP_3");
-			break;
-			case KeyCode::KEY_KP_4:
-			strcpy(buf, "KP_4");
-			break;
-			case KeyCode::KEY_KP_5:
-			strcpy(buf, "KP_5");
-			break;
-			case KeyCode::KEY_KP_6:
-			strcpy(buf, "KP_6");
-			break;
-			case KeyCode::KEY_KP_7:
-			strcpy(buf, "KP_7");
-			break;
-			case KeyCode::KEY_KP_8:
-			strcpy(buf, "KP_8");
-			break;
-			case KeyCode::KEY_KP_9:
-			strcpy(buf, "KP_9");
-			break;
-			case KeyCode::KEY_KP_DECIMAL:
-			strcpy(buf, "KP_DECIMAL");
-			break;
-			case KeyCode::KEY_KP_DIVIDE:
-			strcpy(buf, "ENTER");
-			break;
-			case KeyCode::KEY_KP_MULTIPLY:
-			strcpy(buf, "KP_DIVIDE");
-			break;
-			case KeyCode::KEY_KP_SUBTRACT:
-			strcpy(buf, "KP_SUBTRACT");
-			break;
-			case KeyCode::KEY_KP_ADD:
-			strcpy(buf, "KP_ADD");
-			break;
-			case KeyCode::KEY_KP_ENTER:
-			strcpy(buf, "KP_ENTER");
-			break;
-			case KeyCode::KEY_KP_EQUAL:
-			strcpy(buf, "KP_EQUA");
-			break;
-			case KeyCode::KEY_LEFT_SHIFT:
-			strcpy(buf, "LEFT_SHIFT");
-			break;
-			case KeyCode::KEY_LEFT_CONTROL:
-			strcpy(buf, "LEFT_CONTROL");
-			break;
-			case KeyCode::KEY_LEFT_ALT:
-			strcpy(buf, "LEFT_ALT");
-			break;
-			case KeyCode::KEY_LEFT_SUPER:
-			strcpy(buf, "LEFT_SUPER");
-			break;
-			case KeyCode::KEY_RIGHT_SHIFT:
-			strcpy(buf, "RIGHT_SHIFT");
-			break;
-			case KeyCode::KEY_RIGHT_CONTROL:
-			strcpy(buf, "RIGHT_CONTROL");
-			break;
-			case KeyCode::KEY_RIGHT_ALT:
-			strcpy(buf, "RIGHT_ALT");
-			break;
-			case KeyCode::KEY_RIGHT_SUPER:
-			strcpy(buf, "RIGHT_SUPER");
-			break;
-			case KeyCode::KEY_MENU:
-			strcpy(buf, "MENU");
-			break;
-			default:
-			strcpy(buf, "UNKNOWN");
-			}
-		};
-
 		m_event_dispatcher.add_event_listener<EventKeyPressed>([&](EventKeyPressed &event) {
-			char buf[16];
-			keyToStr(event.key_code, buf);
 			if(event.repeated) {
-					LOG_INFO("Key pressed {0}, repeted", buf);
+				LOG_INFO("Key pressed {0}, repeted", Input::KeyToStr(event.key_code));
 			} else {
-				LOG_INFO("Key pressed {0}", buf);
+				LOG_INFO("Key pressed {0}", Input::KeyToStr(event.key_code));
 			}
 			Input::PressKey(event.key_code);
 		});
 
 		m_event_dispatcher.add_event_listener<EventKeyReleased>([&](EventKeyReleased &event) {
-			char buf[16];
-			keyToStr(event.key_code, buf);
-			LOG_INFO("Key released {0}", buf);
+			LOG_INFO("Key released {0}", Input::KeyToStr(event.key_code));
 			Input::ReleaseKey(event.key_code);
+		});
+
+		m_event_dispatcher.add_event_listener<EventMouseButtonPressed>([&](EventMouseButtonPressed &event) {
+			LOG_INFO("Mouse button {0} pressed  at ({1}, {2})", Input::MousrButtonToStr(event.mouse_button), event.x_pos, event.y_pos);
+			Input::PressMouseButton(event.mouse_button);
+			on_mouse_button_pressed(event.mouse_button, event.x_pos, event.y_pos, true);
+		});
+
+		m_event_dispatcher.add_event_listener<EventMouseButtonReleased>([&](EventMouseButtonReleased &event) {
+			LOG_INFO("Mouse button {0} released at ({1}, {2})", Input::MousrButtonToStr(event.mouse_button), event.x_pos, event.y_pos);
+			Input::ReleaseMouseButton(event.mouse_button);
+			on_mouse_button_pressed(event.mouse_button, event.x_pos, event.y_pos, false);
 		});
 
 		m_pWindow->set_event_callback([&](BaseEvent &event) {

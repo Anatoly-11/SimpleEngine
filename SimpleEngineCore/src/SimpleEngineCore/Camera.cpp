@@ -5,7 +5,7 @@
 namespace SimpleEngine {
 
 	Camera::Camera(const glm::vec3 &position, const glm::vec3 &rotation, const ProjectionMode projection_mode) noexcept :
-		m_position(position), m_rotation(rotation), m_projection_mode(projection_mode) {
+		m_position(position), m_rotation(rotation), m_projection_mode(projection_mode), m_update_view_matrix(false) {
 		update_view_matrix();
 		update_projection_matrix();
 	}
@@ -20,18 +20,18 @@ namespace SimpleEngine {
 
 	void Camera::set_position(const glm::vec3 &position) noexcept {
 		m_position = position;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 
 	void Camera::set_rotation(const glm::vec3 &rotation) noexcept {
 		m_rotation = rotation;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 
 	void Camera::set_position_rotation(const glm::vec3 &position, const glm::vec3 &rotation) noexcept {
 		m_position = position;
 		m_rotation = rotation;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 
 	void Camera::set_projection_mode(const ProjectionMode projection_mode) noexcept {
@@ -39,8 +39,11 @@ namespace SimpleEngine {
 		update_projection_matrix();
 	}
 
-	glm::mat4 Camera::get_view_matrix() const noexcept {
-		return m_view_matrix; 
+	glm::mat4 Camera::get_view_matrix() noexcept {
+		if(m_update_view_matrix) {
+			update_view_matrix();
+		}
+		return m_view_matrix;
 	}
 
 	glm::mat4 Camera::get_projection_matrix() const  noexcept {
@@ -49,25 +52,25 @@ namespace SimpleEngine {
 
 	void Camera::move_forward(const float delta) noexcept {
 		m_position += m_direction * delta;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 	
 	void Camera::move_right(const float delta) noexcept {
 		m_position += m_right * delta;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 	
 	void Camera::move_up(const float delta) noexcept {
-		m_position += m_up * delta;
-		update_view_matrix();
+		m_position += s_word_up * delta;
+		m_update_view_matrix = true;
 	}
 
-	void Camera::add_movement_and_roation(const glm::vec3& movement_delta, const glm::vec3& rotation_delta) noexcept {
+	void Camera::add_movement_and_rotation(const glm::vec3& movement_delta, const glm::vec3& rotation_delta) noexcept {
 		m_position += m_direction * movement_delta.x;
 		m_position += m_right     * movement_delta.y;
 		m_position += m_up        * movement_delta.z;
 		m_rotation += rotation_delta;
-		update_view_matrix();
+		m_update_view_matrix = true;
 	}
 
 	void Camera::update_view_matrix() noexcept {
@@ -110,6 +113,7 @@ namespace SimpleEngine {
 		m_up        = glm::cross(m_right, m_direction);
 
 		m_view_matrix = glm::lookAt(m_position, m_position + m_direction, m_up);
+		m_update_view_matrix = false;
 	}
 
 	void Camera::update_projection_matrix() noexcept {

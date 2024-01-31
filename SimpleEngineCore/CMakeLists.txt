@@ -33,6 +33,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/SimpleEngineCore/Application.cpp
 	src/SimpleEngineCore/Window.cpp
 	src/SimpleEngineCore/Modules/UIModule.cpp
+	#src/SimpleEngineCore/Event.cpp
 	src/SimpleEngineCore/Camera.cpp
 	src/SimpleEngineCore/Input.cpp
 	src/SimpleEngineCore/Rendering/OpenGL/Renderer_OpenGL.cpp
@@ -55,6 +56,9 @@ add_library(${ENGINE_PROJECT_NAME} STATIC
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 	${ENGINE_ALL_SOURCES}
 )
+
+#set(MSVC_COMPILE_DEBUG_OPTIONS "${MSVC_COMPILE_OPTIONS} /W3")
+#target_compile_options(${ENGINE_PROJECT_NAME} PUBLIC "$<$<CONFIG:Debug>:${MSVC_COMPILE_DEBUG_OPTIONS}>")
 
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC cxx_std_20)
 target_compile_features(${ENGINE_PROJECT_NAME} PUBLIC c_std_17)

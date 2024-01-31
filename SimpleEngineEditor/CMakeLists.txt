@@ -16,6 +16,9 @@ add_executable(${EDITOR_PROJECT_NAME}
 
 target_link_libraries(${EDITOR_PROJECT_NAME} SimpleEngineCore ImGui glm)
 
+#set(MSVC_COMPILE_DEBUG_OPTIONS "${MSVC_COMPILE_OPTIONS} /W3")
+#target_compile_options(${EDITOR_PROJECT_NAME} PUBLIC "$<$<CONFIG:Debug>:${MSVC_COMPILE_DEBUG_OPTIONS}>")
+
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC cxx_std_20)
 target_compile_features(${EDITOR_PROJECT_NAME} PUBLIC c_std_17)
 
