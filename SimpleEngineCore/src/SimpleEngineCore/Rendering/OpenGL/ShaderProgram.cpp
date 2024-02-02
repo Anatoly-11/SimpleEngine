@@ -97,11 +97,15 @@ namespace SimpleEngine {
 		glUseProgram(0);
 	}
 
-	bool ShaderProgram::isCompiled() const noexcept {
+	bool ShaderProgram::is_compiled() const noexcept {
 		return m_isCompiled;
 	}
 
-  void ShaderProgram::setMatrix4(const char *name, const glm::mat4 &matrix) const noexcept {
+	void ShaderProgram::set_int(const char *name, const int value) const noexcept {
+		glUniform1i(glGetUniformLocation(m_id, name), value);
+	}
+
+  void ShaderProgram::set_matrix4(const char *name, const glm::mat4 &matrix) const noexcept {
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 }

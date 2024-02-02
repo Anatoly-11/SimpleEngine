@@ -15,8 +15,9 @@ namespace SimpleEngine {
 
     void bind() const noexcept;
     static void unbind() noexcept;
-    bool isCompiled() const noexcept;
-		void setMatrix4(const char *name, const glm::mat4 &matrix) const noexcept;
+    bool is_compiled() const noexcept;
+		void set_matrix4(const char *name, const glm::mat4 &matrix) const noexcept;
+		void set_int(const char *name, const int value) const noexcept;
   private:
     bool m_isCompiled;
     unsigned int m_id;
